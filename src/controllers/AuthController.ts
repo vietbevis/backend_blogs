@@ -6,6 +6,7 @@ import { AuthService } from '@/services/AuthService'
 import envConfig from '@/config/envConfig'
 import { KEY } from '@/utils/constants'
 import ms from 'ms'
+import MESSAGES from '@/utils/message'
 
 interface AuthController {
   login: RequestHandler<unknown, unknown, LoginBodyType, unknown>
@@ -20,27 +21,27 @@ export const AuthController: AuthController = {
   login: async (req, res) => {
     const token = await authService.loginUser(req.body)
     if (envConfig.COOKIE_MODE) {
-      res.cookie(KEY.COOKIE.ACCESS_TOKEN, token.access_token, {
+      res.cookie(KEY.COOKIE.ACCESS_TOKEN, token.accessToken, {
         httpOnly: true,
         secure: true,
         sameSite: 'none',
         maxAge: ms(envConfig.ACCESS_TOKEN_EXPIRES_IN)
       })
-      res.cookie(KEY.COOKIE.REFRESH_TOKEN, token.refresh_token, {
+      res.cookie(KEY.COOKIE.REFRESH_TOKEN, token.refreshToken, {
         httpOnly: true,
         secure: true,
         sameSite: 'none',
         maxAge: ms(envConfig.REFRESH_TOKEN_EXPIRES_IN)
       })
     }
-    new OkResponse('Login successfully', token).send(res)
+    new OkResponse(MESSAGES.SUCCESS.USER.LOGIN, token).send(res)
   },
   register: async (req, res) => {
     await authService.registerUser(req.body)
-    new CreatedResponse('Register successfully').send(res)
+    new CreatedResponse(MESSAGES.SUCCESS.USER.REGISTER).send(res)
   },
   refresh: async (req, res) => {
     const token = await authService.refreshToken(req.body.refreshToken, req.user)
-    new OkResponse('Refresh token successfully', token).send(res)
+    new OkResponse(MESSAGES.SUCCESS.USER.REFRESH_TOKEN, token).send(res)
   }
 }

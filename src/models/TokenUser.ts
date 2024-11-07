@@ -4,10 +4,16 @@ import { User } from '@/models/User'
 
 @Entity('token_users')
 export class TokenUser extends BaseModel {
-  @OneToOne(() => User, { cascade: true })
+  @OneToOne(() => User)
   @JoinColumn()
   user!: Relation<User>
 
-  @Column({ type: 'longtext', name: 'refreshToken' })
-  refreshToken!: string
+  @Column({ type: 'longtext', name: 'publicKey' })
+  publicKey!: string
+
+  @Column({
+    type: 'datetime',
+    name: 'expired'
+  })
+  expired!: Date
 }

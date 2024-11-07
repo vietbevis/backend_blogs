@@ -1,4 +1,4 @@
-import { ERole, KEY, TokenType } from '@/utils/constants'
+import { ERole, KEY } from '@/utils/constants'
 import { RequestHandler } from 'express'
 import envConfig from '@/config/envConfig'
 import { ForbiddenError, UnauthorizedError } from '@/core/ErrorResponse'
@@ -30,14 +30,11 @@ const AuthMiddleware: AuthMiddleware = {
 
     // Verify token
     try {
-      const payload = await tokenService.verifyToken(accessToken, TokenType.ACCESS_TOKEN)
-      if (!payload) throw new UnauthorizedError()
-
+      const payload = await tokenService.verifyToken(accessToken)
       req.user = payload.user
       next()
-    } catch (error: any) {
-      if (error.message.includes('TokenExpiredError')) throw new UnauthorizedError('Token expired')
-      throw new UnauthorizedError('Invalid token')
+    } catch (error) {
+      throw new UnauthorizedError()
     }
   },
   authorizeRole: (roles) => (req, _res, next) => {

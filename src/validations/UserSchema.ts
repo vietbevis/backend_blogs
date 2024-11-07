@@ -1,11 +1,7 @@
 import z from 'zod'
 import { FormRegisterSchema } from './AuthSchema'
 import { fullNameSchema, passwordSchema, phoneNumberSchema } from './CommonSchema'
-
-enum Role {
-  ROLE_ADMIN = 'ROLE_ADMIN',
-  ROLE_USER = 'ROLE_USER'
-}
+import { ERole } from '@/utils/constants'
 
 export const FormChangePasswordSchema = z
   .object({
@@ -15,19 +11,23 @@ export const FormChangePasswordSchema = z
   })
   .strict()
   .strip()
-  .refine((data) => data.newPassword === data.confirmPassword, {
-    message: 'Confirm password must match new password.',
-    path: ['confirmPassword']
-  })
-  .refine((data) => data.oldPassword !== data.newPassword, {
-    message: 'New password must be different from old password.',
-    path: ['newPassword']
-  })
+// .refine((data) => data.newPassword === data.confirmPassword, {
+//   message: 'Confirm password must match new password.',
+//   path: ['confirmPassword']
+// })
+// .refine((data) => data.oldPassword !== data.newPassword, {
+//   message: 'New password must be different from old password.',
+//   path: ['newPassword']
+// })
 
 export type ChangePasswordType = z.infer<typeof FormChangePasswordSchema>
 
 export const FormCreateUserSchema = FormRegisterSchema.extend({
-  roles: z.array(z.nativeEnum(Role)).min(1, { message: 'Roles can not be blank' }).default([Role.ROLE_USER]).optional(),
+  roles: z
+    .array(z.nativeEnum(ERole))
+    .min(1, { message: 'Roles can not be blank' })
+    .default([ERole.ROLE_USER])
+    .optional(),
   phoneNumber: phoneNumberSchema.default('').optional()
 })
   .strict()
@@ -47,9 +47,7 @@ export type UpdateUserType = z.infer<typeof FormUpdateUserSchema>
 
 export const ParamsUserSchema = z
   .object({
-    userId: z.string({ message: 'UserId can not be blank' }).regex(/^[0-9a-fA-F]{24}$/, {
-      message: 'Invalid userId'
-    })
+    userId: z.string({ message: 'UserId can not be blank' }).uuid('Invalid userId')
   })
   .strict()
   .strip()

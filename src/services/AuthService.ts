@@ -4,13 +4,14 @@ import { AppDataSource } from '@/config/database'
 import { Role } from '@/models/Role'
 import { LoginBodyType, RegisterBodyType } from '@/validations/AuthSchema'
 import { BadRequestError, UnauthorizedError } from '@/core/ErrorResponse'
-import { ERole, TokenType } from '@/utils/constants'
+import { ERole } from '@/utils/constants'
 import { comparePassword, hashPassword } from '@/utils/crypto'
 import { TokenService, UserFromTokenPayload } from '@/services/TokenService'
+import MESSAGES from '@/utils/message'
 
 interface LoginResponse {
-  access_token: string
-  refresh_token: string
+  accessToken: string
+  refreshToken: string
 }
 
 const tokenService = new TokenService()
@@ -23,7 +24,7 @@ export class AuthService {
     const { fullName, email, password } = body
     // Check if user already exists
     const existingUser = await this.userRepository.findOne({ where: { email } })
-    if (existingUser) throw new BadRequestError('Email already exists')
+    if (existingUser) throw new BadRequestError(MESSAGES.ERROR.EMAIL.ALREADY_EXISTS)
 
     // Hash password
     const hashedPassword = await hashPassword(password)
@@ -60,29 +61,26 @@ export class AuthService {
       where: { email },
       relations: { roles: true }
     })
-    if (existingUser == null) throw new BadRequestError('User not found')
+    if (existingUser == null) throw new BadRequestError(MESSAGES.ERROR.EMAIL.NOT_FOUND)
 
     // Check password
-    if (!(await comparePassword(password, existingUser.password))) throw new BadRequestError('Passwords do not match')
+    if (!(await comparePassword(password, existingUser.password)))
+      throw new BadRequestError(MESSAGES.ERROR.PASSWORD.NOT_MATCH)
 
     // Generate token
-    const [access_token, refresh_token] = await Promise.all([
-      tokenService.generateToken(existingUser, TokenType.ACCESS_TOKEN),
-      tokenService.generateToken(existingUser, TokenType.REFRESH_TOKEN)
-    ])
+    const { accessToken, refreshToken, publicKey } = await tokenService.generateToken(existingUser)
 
-    // Save refresh token to db
-    await tokenService.saveRefreshToken(existingUser, refresh_token)
-
-    return { access_token, refresh_token }
+    return { accessToken, refreshToken }
   }
 
-  async refreshToken(refresh_token: string, user: UserFromTokenPayload): Promise<LoginResponse> {
-    const tokenValid = await tokenService.verifyToken(refresh_token, TokenType.REFRESH_TOKEN)
+  async refreshToken(refreshTokenOld: string, user: UserFromTokenPayload): Promise<LoginResponse> {
+    const tokenExists = await tokenService.getTokenUser(user.id)
+
+    const tokenValid = await tokenService.verifyToken(refreshTokenOld)
     if (!tokenValid) throw new UnauthorizedError()
 
-    const access_token = await tokenService.generateToken(user, TokenType.ACCESS_TOKEN)
+    const { accessToken, refreshToken, publicKey } = await tokenService.generateToken(user)
 
-    return { access_token, refresh_token }
+    return { accessToken, refreshToken }
   }
 }

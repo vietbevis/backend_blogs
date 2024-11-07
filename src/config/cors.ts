@@ -1,9 +1,8 @@
 import envConfig from '@/config/envConfig'
 import { ForbiddenError } from '@/core/ErrorResponse'
 
-const WHITELIST_DOMAINS = ['http://localhost:5173']
+const WHITELIST_DOMAINS = ['http://localhost:5173', 'http://localhost:3000']
 
-// Cấu hình CORS Option trong dự án thực tế (Video số 62 trong chuỗi MERN Stack Pro)
 export const corsOptions: any = {
   origin: function (origin: any, callback: any) {
     // Cho phép việc gọi API bằng POSTMAN trên môi trường dev,
@@ -24,6 +23,6 @@ export const corsOptions: any = {
   // Some legacy browsers (IE11, various SmartTVs) choke on 204
   optionsSuccessStatus: 200,
 
-  // CORS sẽ cho phép nhận cookies từ request, (Nhá hàng :D | Ở khóa MERN Stack Advance nâng cao học trực tiếp mình sẽ hướng dẫn các bạn đính kèm jwt access token và refresh token vào httpOnly Cookies)
+  // CORS sẽ cho phép nhận cookies từ request
   credentials: true
 }
