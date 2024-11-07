@@ -8,6 +8,11 @@ const enum Pagination {
   LIMIT = 24
 }
 
+enum ESort {
+  ASC = 'ASC',
+  DESC = 'DESC'
+}
+
 const enum TokenType {
   ACCESS_TOKEN = 'ACCESS_TOKEN',
   REFRESH_TOKEN = 'REFRESH_TOKEN'
@@ -19,10 +24,8 @@ const KEY = {
     REFRESH_TOKEN: 'refreshToken'
   },
   HEADER: {
-    AUTHORIZATION: 'Authorization',
-    API_KEY: 'x-api-key',
-    CLIENT_ID: 'x-client-id'
+    AUTHORIZATION: 'Authorization'
   }
 }
 
-export { ERole, Pagination, TokenType, KEY }
+export { ERole, Pagination, TokenType, KEY, ESort }

@@ -1,11 +1,11 @@
-import { Pagination } from '@/utils/constants'
+import { ESort, Pagination } from '@/utils/constants'
 import z from 'zod'
 
-export const emailSchema = z.string({ message: 'Email can not be blank' }).email({
+export const EmailSchema = z.string({ message: 'Email can not be blank' }).email({
   message: 'Invalid email address.'
 })
 
-export const passwordSchema = z
+export const PasswordSchema = z
   .string({ message: 'Password can not be blank' })
   .min(8, {
     message: 'Password must be at least 8 characters.'
@@ -16,8 +16,8 @@ export const passwordSchema = z
       'Password must contain at least one uppercase letter, one lowercase letter, one digit, and one special character.'
   })
 
-export const fullNameSchema = z
-  .string({ message: 'Fullname can not be blank' })
+export const FullNameSchema = z
+  .string({ message: 'Name can not be blank' })
   .min(3, { message: 'Name must be at least 3 characters.' })
   .max(20, { message: 'Name must not exceed 20 characters.' })
 
@@ -25,7 +25,7 @@ export const phoneNumberSchema = z.string().regex(/(84|0[3|5|7|8|9])+([0-9]{8})\
   message: 'Phone number is invalid (Viet Nam phone number only).'
 })
 
-const PaginationSchema = z
+export const PaginationSchema = z
   .object({
     page: z
       .string()
@@ -42,10 +42,18 @@ const PaginationSchema = z
       })
       .transform((val) => Number(val)),
     sortField: z.string().default('createdAt'),
-    sortDirection: z.enum(['asc', 'desc']).default('desc')
+    sortDirection: z.nativeEnum(ESort).default(ESort.DESC)
   })
   .strict()
   .strip()
 
 export type PaginationType = z.infer<typeof PaginationSchema>
-export default PaginationSchema
+
+export const ParamsIdSchema = z
+  .object({
+    id: z.string({ message: 'UserId can not be blank' }).uuid('Invalid userId')
+  })
+  .strict()
+  .strip()
+
+export type ParamsIdType = z.infer<typeof ParamsIdSchema>

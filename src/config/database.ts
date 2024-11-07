@@ -3,6 +3,7 @@ import { User } from '@/models/User'
 import envConfig from './envConfig'
 import { Role } from '@/models/Role'
 import { TokenUser } from '@/models/TokenUser'
+import { Category } from '@/models/Category'
 
 export const AppDataSource = new DataSource({
   type: 'mysql',
@@ -13,7 +14,7 @@ export const AppDataSource = new DataSource({
   database: envConfig.DB_NAME,
   synchronize: true,
   logging: false,
-  entities: [User, Role, TokenUser],
+  entities: [User, Role, TokenUser, Category],
   subscribers: [],
   migrations: []
 })

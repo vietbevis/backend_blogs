@@ -8,9 +8,15 @@ const MESSAGES = {
       UPDATE: 'Update profile successfully',
       CHANGE_PASSWORD: 'Change password success',
       REFRESH_TOKEN: 'Refresh token successfully'
+    },
+    CATEGORY: {
+      CREATE: 'Create category successfully'
     }
   },
   ERROR: {
+    USER: {
+      ACTIVE: 'User not active'
+    },
     EMAIL: {
       ALREADY_EXISTS: 'Email already exists',
       NOT_FOUND: 'User not found'
@@ -23,6 +29,10 @@ const MESSAGES = {
     },
     TOKEN: {
       GENERATE: 'Generate Token Error'
+    },
+    CATEGORY: {
+      EXISTS: 'Category already exists',
+      NOT_FOUND: 'Category not found'
     }
   }
 }

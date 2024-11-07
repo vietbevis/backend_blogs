@@ -16,6 +16,9 @@ export class User extends BaseModel {
   @Column({ type: 'varchar', name: 'phone_number', default: '' })
   phoneNumber!: string
 
+  @Column({ type: 'bit', default: true })
+  active!: boolean
+
   @ManyToMany(() => Role, { nullable: false })
   @JoinTable({
     name: 'user_roles',

@@ -61,7 +61,9 @@ export class AuthService {
       where: { email },
       relations: { roles: true }
     })
+
     if (existingUser == null) throw new BadRequestError(MESSAGES.ERROR.EMAIL.NOT_FOUND)
+    if (!existingUser.active) throw new UnauthorizedError(MESSAGES.ERROR.USER.ACTIVE)
 
     // Check password
     if (!(await comparePassword(password, existingUser.password)))

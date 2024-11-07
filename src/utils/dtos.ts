@@ -1,11 +1,12 @@
 import _ from 'lodash'
+import { ObjectLiteral } from 'typeorm'
 
 const selectFields = (data: any, fields: string[]) => {
   return _.pick(data, fields)
 }
 
-const omitFields = (data: any, fields: string[]) => {
-  return _.omit(data, fields)
+const omitFields = <T extends ObjectLiteral>(data: T, fields: (keyof T)[]): T => {
+  return _.omit(data, fields) as T
 }
 
 function mapValues<T extends object>(source: Partial<T>, target: T): T {

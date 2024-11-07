@@ -1,13 +1,14 @@
 import { RequestHandler } from 'express'
 import { UserService } from '@/services/UserService'
-import { ChangePasswordType, ParamsUserType, UpdateUserType } from '@/validations/UserSchema'
+import { ChangePasswordType, UpdateUserType } from '@/validations/UserSchema'
 import { OkResponse } from '@/core/SuccessResponse'
-import { BadRequestError, UnauthorizedError } from '@/core/ErrorResponse'
+import { BadRequestError, NotFoundError, UnauthorizedError } from '@/core/ErrorResponse'
 import { omitFields } from '@/utils/dtos'
 import MESSAGES from '@/utils/message'
+import { ParamsIdType } from '@/validations/CommonSchema'
 
 interface UserController {
-  getUser: RequestHandler<ParamsUserType>
+  getUser: RequestHandler<ParamsIdType>
   getMe: RequestHandler
   logout: RequestHandler
   changePassword: RequestHandler<unknown, unknown, ChangePasswordType>
@@ -26,11 +27,12 @@ const UserController: UserController = {
   getMe: async (req, res) => {
     const user = await userService.getUserById(req.user.id)
     if (!user) throw new UnauthorizedError()
-    new OkResponse(MESSAGES.SUCCESS.COMPLETED, omitFields(user, ['password', 'roles'])).send(res)
+    new OkResponse(MESSAGES.SUCCESS.COMPLETED, omitFields(user, ['password', 'roles', 'active'])).send(res)
   },
   getUser: async (req, res) => {
-    const user = await userService.getUserById(req.params.userId)
-    new OkResponse(MESSAGES.SUCCESS.COMPLETED, omitFields(user, ['password', 'roles'])).send(res)
+    const user = await userService.getUserById(req.params.id)
+    if (!user) throw new NotFoundError(MESSAGES.ERROR.EMAIL.NOT_FOUND)
+    new OkResponse(MESSAGES.SUCCESS.COMPLETED, omitFields(user, ['password', 'roles', 'active'])).send(res)
   },
   logout: async (req, res) => {
     await userService.logout(req.user.id)
@@ -38,7 +40,7 @@ const UserController: UserController = {
   },
   updateMe: async (req, res) => {
     const userUpdated = await userService.updateUser(req.user.id, req.body)
-    new OkResponse(MESSAGES.SUCCESS.USER.UPDATE, omitFields(userUpdated, ['password', 'roles'])).send(res)
+    new OkResponse(MESSAGES.SUCCESS.USER.UPDATE, omitFields(userUpdated, ['password', 'roles', 'active'])).send(res)
   }
 }
 
