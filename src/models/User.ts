@@ -13,6 +13,9 @@ export class User extends BaseModel {
   @Column({ type: 'varchar', name: 'password' })
   password!: string
 
+  @Column({ type: 'varchar', name: 'avatar_url', default: '' })
+  avatarUrl!: string
+
   @Column({ type: 'varchar', name: 'phone_number', default: '' })
   phoneNumber!: string
 

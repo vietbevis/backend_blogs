@@ -24,4 +24,4 @@ function mapValues<T extends object>(source: Partial<T>, target: T): T {
   return result
 }
 
-export { selectFields, omitFields }
+export { selectFields, omitFields, mapValues }

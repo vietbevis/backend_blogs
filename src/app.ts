@@ -8,8 +8,12 @@ import cors from 'cors'
 import { corsOptions } from './config/cors'
 import formatDate from '@/utils/formatDate'
 import routes from '@/routes'
+import { initFolder } from '@/utils/file'
 
 const app = express()
+
+// Tự động tạo folder uploads ảnh nếu chưa tồn tại
+initFolder()
 
 // Middleware
 app.use(cors(corsOptions))

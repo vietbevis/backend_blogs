@@ -8,10 +8,12 @@ import { ERole } from '@/utils/constants'
 import autoRemoveTokenJob from '@/jobs/autoRemoveToken'
 import { User } from '@/models/User'
 import { hashPassword } from '@/utils/crypto'
+import { InitMinio } from '@/config/minio'
 
 AppDataSource.initialize()
   .then(async () => {
     await InitDataSource(AppDataSource)
+    await InitMinio()
     autoRemoveTokenJob()
     app.listen(envConfig.PORT, () => {
       console.log('Server is running on port 4000')

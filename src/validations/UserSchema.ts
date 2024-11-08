@@ -28,7 +28,8 @@ export const FormCreateUserSchema = FormRegisterSchema.extend({
     .min(1, { message: 'Roles can not be blank' })
     .default([ERole.ROLE_USER])
     .optional(),
-  phoneNumber: phoneNumberSchema.default('').optional()
+  phoneNumber: phoneNumberSchema.default(''),
+  avatarUrl: z.string().default('')
 })
   .strict()
   .strip()
@@ -38,7 +39,8 @@ export type CreateUserType = z.infer<typeof FormCreateUserSchema>
 export const FormUpdateUserSchema = z
   .object({
     fullName: FullNameSchema,
-    phoneNumber: phoneNumberSchema
+    phoneNumber: phoneNumberSchema,
+    avatarUrl: z.string().default('')
   })
   .strict()
   .strip()

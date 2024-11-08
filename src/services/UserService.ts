@@ -7,6 +7,7 @@ import { compareSync } from 'bcryptjs'
 import { hashPassword } from '@/utils/crypto'
 import { TokenUser } from '@/models/TokenUser'
 import MESSAGES from '@/utils/message'
+import { mapValues } from '@/utils/dtos'
 
 export class UserService {
   private userRepository: Repository<User> = AppDataSource.getRepository(User)
@@ -25,9 +26,7 @@ export class UserService {
   async updateUser(userId: string, user: UpdateUserType): Promise<User> {
     const userExists = await this.userRepository.findOneBy({ id: userId })
     if (!userExists) throw new UnauthorizedError()
-    userExists.fullName = user.fullName
-    userExists.phoneNumber = user.phoneNumber
-    return this.userRepository.save(userExists)
+    return this.userRepository.save(mapValues(user, userExists))
   }
 
   async changePassword(userId: string, newPassword: string): Promise<void> {
