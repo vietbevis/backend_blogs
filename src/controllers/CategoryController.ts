@@ -1,11 +1,12 @@
 import { RequestHandler } from 'express'
 import { CreatedResponse, OkResponse } from '@/core/SuccessResponse'
 import { CategoryService } from '@/services/CategoryService'
-import { PaginationType, ParamsIdType } from '@/validations/CommonSchema'
+import { PaginationType, ParamsIdType, QueryDeleteType } from '@/validations/CommonSchema'
 import { CreateCategoryType } from '@/validations/CategorySchema'
 import MESSAGES from '@/utils/message'
 import { NotFoundError } from '@/core/ErrorResponse'
 import { omitFields } from '@/utils/dtos'
+import { DELETE_TYPE } from '@/utils/constants'
 
 interface CategoryController {
   getAllCategories: RequestHandler<unknown, unknown, unknown, PaginationType>
@@ -13,8 +14,7 @@ interface CategoryController {
   getCategoryById: RequestHandler<ParamsIdType>
   createCategory: RequestHandler<unknown, unknown, CreateCategoryType>
   updateCategory: RequestHandler<ParamsIdType>
-  deleteCategory: RequestHandler<ParamsIdType>
-  softDeleteCategory: RequestHandler<ParamsIdType>
+  deleteCategory: RequestHandler<ParamsIdType, unknown, unknown, QueryDeleteType>
 }
 
 const categoryService = new CategoryService()
@@ -25,11 +25,11 @@ const CategoryController: CategoryController = {
     new CreatedResponse(MESSAGES.SUCCESS.CATEGORY.CREATE, omitFields(result, ['active'])).send(res)
   },
   deleteCategory: async (req, res) => {
-    await categoryService.delete(req.params.id)
-    new OkResponse(MESSAGES.SUCCESS.COMPLETED).send(res)
-  },
-  softDeleteCategory: async (req, res) => {
-    await categoryService.softDelete(req.params.id)
+    if (req.query.deleteType === DELETE_TYPE.SOFT_DELETE) {
+      await categoryService.softDelete(req.params.id)
+    } else {
+      await categoryService.delete(req.params.id)
+    }
     new OkResponse(MESSAGES.SUCCESS.COMPLETED).send(res)
   },
   getAllCategories: async (req, res) => {

@@ -5,6 +5,8 @@ import paginate, { PaginatedResult, PaginationOptions } from '@/services/Paginat
 import { CreateCategoryType } from '@/validations/CategorySchema'
 import { BadRequestError, NotFoundError } from '@/core/ErrorResponse'
 import MESSAGES from '@/utils/message'
+import getSlug from '@/utils/slug'
+import { mapValues } from '@/utils/dtos'
 
 export class CategoryService {
   private categoryRepository: Repository<Category> = AppDataSource.getRepository(Category)
@@ -17,7 +19,10 @@ export class CategoryService {
     const categoryExists = await this.categoryRepository.findOneBy({ name: category.name })
     if (categoryExists) throw new BadRequestError(MESSAGES.ERROR.CATEGORY.EXISTS)
 
-    const newCategory = this.categoryRepository.create(category)
+    const newCategory = this.categoryRepository.create({
+      ...category,
+      slug: getSlug(category.name)
+    })
     return this.categoryRepository.save(newCategory)
   }
 
@@ -25,22 +30,23 @@ export class CategoryService {
     return this.categoryRepository.findOneBy({ id })
   }
 
-  async update(id: string, category: CreateCategoryType): Promise<Category> {
-    const categoryExists = await this.categoryRepository.findOneBy({ id })
-    if (!categoryExists) throw new NotFoundError(MESSAGES.ERROR.CATEGORY.NOT_FOUND)
+  async update(id: string, categoryData: CreateCategoryType): Promise<Category> {
+    const slug = getSlug(categoryData.name)
 
-    const categoryNameExists = await this.categoryRepository.findOne({
-      where: {
-        name: category.name,
-        id: Not(id)
-      }
-    })
-    if (categoryNameExists) throw new BadRequestError(MESSAGES.ERROR.CATEGORY.EXISTS)
+    const [existingCategory, duplicateCategory] = await Promise.all([
+      this.categoryRepository.findOneBy({ id }),
+      this.categoryRepository.findOne({
+        where: [
+          { name: categoryData.name, id: Not(id) },
+          { slug: slug, id: Not(id) }
+        ]
+      })
+    ])
 
-    categoryExists.name = category.name
-    categoryExists.description = category.description || ''
+    if (!existingCategory) throw new NotFoundError(MESSAGES.ERROR.CATEGORY.NOT_FOUND)
+    if (duplicateCategory) throw new BadRequestError(MESSAGES.ERROR.CATEGORY.EXISTS)
 
-    return this.categoryRepository.save(categoryExists)
+    return this.categoryRepository.save(mapValues(categoryData, existingCategory))
   }
 
   async softDelete(id: string): Promise<void> {

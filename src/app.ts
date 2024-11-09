@@ -9,6 +9,7 @@ import { corsOptions } from './config/cors'
 import formatDate from '@/utils/formatDate'
 import routes from '@/routes'
 import { initFolder } from '@/utils/file'
+import logger from '@/config/logger'
 
 const app = express()
 
@@ -17,7 +18,13 @@ initFolder()
 
 // Middleware
 app.use(cors(corsOptions))
-app.use(morgan('dev'))
+app.use(
+  morgan('dev', {
+    stream: {
+      write: (message: string) => logger.info(message)
+    }
+  })
+)
 app.use(helmet())
 app.use(compression())
 app.use(express.json())

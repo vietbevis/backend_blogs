@@ -9,6 +9,8 @@ import autoRemoveTokenJob from '@/jobs/autoRemoveToken'
 import { User } from '@/models/User'
 import { hashPassword } from '@/utils/crypto'
 import { InitMinio } from '@/config/minio'
+import logger from '@/config/logger'
+import getSlug from '@/utils/slug'
 
 AppDataSource.initialize()
   .then(async () => {
@@ -16,7 +18,7 @@ AppDataSource.initialize()
     await InitMinio()
     autoRemoveTokenJob()
     app.listen(envConfig.PORT, () => {
-      console.log('Server is running on port 4000')
+      logger.info('Server is running on port ' + envConfig.PORT)
     })
   })
   .catch((error) => console.log(error))
@@ -37,13 +39,13 @@ const InitDataSource = async (dataSource: DataSource) => {
   if (!existsRoleUser) {
     const roleUser = roleRepository.create({ name: ERole.ROLE_USER })
     await roleRepository.save(roleUser)
-    console.log('Inserted role: ', ERole.ROLE_USER)
+    logger.info('Inserted role: ', ERole.ROLE_USER)
   }
 
   if (!existsRoleAdmin) {
     const roleAdmin = roleRepository.create({ name: ERole.ROLE_ADMIN })
     const resultRoleAdmin = await roleRepository.save(roleAdmin)
-    console.log('Inserted role: ', ERole.ROLE_ADMIN)
+    logger.info('Inserted role: ', ERole.ROLE_ADMIN)
   }
 
   if (!existsAccountAdmin) {
@@ -56,9 +58,10 @@ const InitDataSource = async (dataSource: DataSource) => {
       email: EMAIL,
       password: await hashPassword(PASSWORD),
       phoneNumber: PHONE_NUMBER,
+      username: getSlug(FULL_NAME),
       roles
     })
     await userRepository.save(accountAdmin)
-    console.log('Inserted account: ', ERole.ROLE_ADMIN)
+    logger.info('Inserted account: ', ERole.ROLE_ADMIN)
   }
 }

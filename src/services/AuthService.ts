@@ -8,6 +8,7 @@ import { ERole } from '@/utils/constants'
 import { comparePassword, hashPassword } from '@/utils/crypto'
 import { TokenService, UserFromTokenPayload } from '@/services/TokenService'
 import MESSAGES from '@/utils/message'
+import getSlug from '@/utils/slug'
 
 interface LoginResponse {
   accessToken: string
@@ -44,6 +45,7 @@ export class AuthService {
       email,
       password: hashedPassword,
       fullName,
+      username: getSlug(fullName),
       roles
     })
 

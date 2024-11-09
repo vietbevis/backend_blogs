@@ -1,4 +1,4 @@
-import { ESort, Pagination } from '@/utils/constants'
+import { DELETE_TYPE, ESort, FOLLOW_TYPE, Pagination } from '@/utils/constants'
 import z from 'zod'
 
 export const EmailSchema = z.string({ message: 'Email can not be blank' }).email({
@@ -49,6 +49,22 @@ export const PaginationSchema = z
 
 export type PaginationType = z.infer<typeof PaginationSchema>
 
+export const QueryUserIdSchema = PaginationSchema.extend({
+  userId: z.string().default('')
+})
+  .strict()
+  .strip()
+
+export type QueryUserIdType = z.infer<typeof QueryUserIdSchema>
+
+export const QueryFollowSchema = QueryUserIdSchema.extend({
+  followType: z.nativeEnum(FOLLOW_TYPE)
+})
+  .strict()
+  .strip()
+
+export type QueryFollowType = z.infer<typeof QueryFollowSchema>
+
 export const ParamsIdSchema = z
   .object({
     id: z.string({ message: 'UserId can not be blank' }).uuid('Invalid userId')
@@ -57,3 +73,12 @@ export const ParamsIdSchema = z
   .strip()
 
 export type ParamsIdType = z.infer<typeof ParamsIdSchema>
+
+export const QueryDeleteSchema = z
+  .object({
+    deleteType: z.nativeEnum(DELETE_TYPE).default(DELETE_TYPE.SOFT_DELETE)
+  })
+  .strict()
+  .strip()
+
+export type QueryDeleteType = z.infer<typeof QueryDeleteSchema>

@@ -6,6 +6,9 @@ export interface PaginationOptions {
   limit: number
   order?: { [key: string]: 'ASC' | 'DESC' }
   filter?: { [key: string]: any }
+  relationField?: string // Trường quan hệ để join
+  joinCondition?: string // Điều kiện join
+  joinParams?: { [key: string]: any } // Tham số join (nếu có)
 }
 
 export interface PaginatedResult<T> {
@@ -24,10 +27,14 @@ async function paginate<T extends ObjectLiteral>(
   options: PaginationOptions,
   fieldsToOmit: (keyof T)[] = []
 ): Promise<PaginatedResult<T>> {
-  const { page, limit, order, filter } = options
+  const { page, limit, order, filter, relationField, joinCondition, joinParams } = options
 
-  // Khởi tạo query builder với điều kiện lọc và sắp xếp
   let queryBuilder: SelectQueryBuilder<T> = repository.createQueryBuilder('entity')
+
+  // Thêm điều kiện join với quan hệ và tham số join nếu có
+  if (relationField && joinCondition) {
+    queryBuilder = queryBuilder.innerJoin(`entity.${relationField}`, 'relation', joinCondition, joinParams)
+  }
 
   // Thêm điều kiện lọc nếu có
   if (filter) {
@@ -43,14 +50,14 @@ async function paginate<T extends ObjectLiteral>(
     })
   }
 
-  // Phân trang bằng offset và limit
+  // Phân trang
   const offset = (page - 1) * limit
   queryBuilder = queryBuilder.skip(offset).take(limit)
 
   // Thực hiện truy vấn
   const [data, total] = await queryBuilder.getManyAndCount()
 
-  // Tính toán giá trị hasNextPage và hasPreviousPage
+  // Tính toán phân trang
   const totalPages = Math.ceil(total / limit)
   const hasNextPage = page < totalPages
   const hasPreviousPage = page > 1

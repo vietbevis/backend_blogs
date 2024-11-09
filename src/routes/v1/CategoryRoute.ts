@@ -1,7 +1,7 @@
 import express from 'express'
 import CategoryController from '@/controllers/CategoryController'
 import { validateRequest } from '@/middlewares/validateRequest'
-import { PaginationSchema, ParamsIdSchema } from '@/validations/CommonSchema'
+import { PaginationSchema, ParamsIdSchema, QueryDeleteSchema } from '@/validations/CommonSchema'
 import asyncHandler from '@/middlewares/asyncHandler'
 import { FormCreateCategorySchema } from '@/validations/CategorySchema'
 
@@ -35,13 +35,8 @@ CategoryRouter.put(
 )
 CategoryRouter.delete(
   '/:id',
-  validateRequest({ params: ParamsIdSchema, body: FormCreateCategorySchema }),
+  validateRequest({ params: ParamsIdSchema, query: QueryDeleteSchema }),
   asyncHandler(CategoryController.deleteCategory)
-)
-CategoryRouter.delete(
-  '/soft/:id',
-  validateRequest({ params: ParamsIdSchema, body: FormCreateCategorySchema }),
-  asyncHandler(CategoryController.softDeleteCategory)
 )
 
 export { CategoryRouter, PublicCategoryRouter }

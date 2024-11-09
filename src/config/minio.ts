@@ -1,4 +1,5 @@
 import * as Minio from 'minio'
+import logger from '@/config/logger'
 
 export const minioClient = new Minio.Client({
   endPoint: 'localhost',
@@ -15,19 +16,9 @@ export const InitMinio = async () => {
     const bucketExists = await minioClient.bucketExists(BUCKET_NAME)
     if (!bucketExists) {
       await minioClient.makeBucket(BUCKET_NAME, 'us-east-1')
-      console.log('Bucket created successfully in "us-east-1".')
+      logger.info('Bucket created successfully in "us-east-1".')
     }
   } catch (err) {
-    console.error('Error creating bucket:', err)
-  }
-}
-
-export const getPresignedUrl = async (fileName: string, bucketName: string) => {
-  try {
-    const url = await minioClient.presignedUrl('GET', bucketName, fileName, 24 * 60 * 60) // URL có thời hạn 24 giờ
-    return url
-  } catch (error) {
-    console.error('Lỗi khi tạo URL tạm thời:', error)
-    throw error
+    logger.error('Error creating bucket:', err)
   }
 }

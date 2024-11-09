@@ -6,7 +6,7 @@ const selectFields = (data: any, fields: string[]) => {
 }
 
 const omitFields = <T extends ObjectLiteral>(data: T, fields: (keyof T)[]): T => {
-  return _.omit(data, fields) as T
+  return _.omit(data, ['createdAt', 'updatedAt', 'active', 'password', ...fields]) as T
 }
 
 function mapValues<T extends object>(source: Partial<T>, target: T): T {

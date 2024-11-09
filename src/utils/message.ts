@@ -11,6 +11,9 @@ const MESSAGES = {
     },
     CATEGORY: {
       CREATE: 'Create category successfully'
+    },
+    TAG: {
+      CREATE: 'Create category successfully'
     }
   },
   ERROR: {
@@ -33,6 +36,10 @@ const MESSAGES = {
     CATEGORY: {
       EXISTS: 'Category already exists',
       NOT_FOUND: 'Category not found'
+    },
+    TAG: {
+      EXISTS: 'Tag already exists',
+      NOT_FOUND: 'Tag not found'
     }
   }
 }

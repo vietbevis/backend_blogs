@@ -3,7 +3,7 @@ import UserController from '@/controllers/UserController'
 import asyncHandler from '@/middlewares/asyncHandler'
 import { validateRequest } from '@/middlewares/validateRequest'
 import { FormChangePasswordSchema, FormUpdateUserSchema } from '@/validations/UserSchema'
-import { ParamsIdSchema } from '@/validations/CommonSchema'
+import { ParamsIdSchema, QueryFollowSchema } from '@/validations/CommonSchema'
 
 // Private route
 const UserRouter = express.Router()
@@ -15,9 +15,24 @@ UserRouter.put(
   validateRequest({ body: FormChangePasswordSchema }),
   asyncHandler(UserController.changePassword)
 )
+UserRouter.put(
+  '/follows/:id',
+  validateRequest({ params: ParamsIdSchema }),
+  asyncHandler(UserController.toggleFollowUser)
+)
+UserRouter.put(
+  '/follows/tags/:id',
+  validateRequest({ params: ParamsIdSchema }),
+  asyncHandler(UserController.toggleFollowTag)
+)
 
 // Public route
 const PublicUserRouter = express.Router()
+PublicUserRouter.get(
+  '/follow-users',
+  validateRequest({ query: QueryFollowSchema }),
+  asyncHandler(UserController.getFollowUsers)
+)
 PublicUserRouter.get('/:id', validateRequest({ params: ParamsIdSchema }), asyncHandler(UserController.getUser))
 
 // Export
